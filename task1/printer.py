@@ -24,11 +24,40 @@ def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     Returns:
         Dict з порядком друку та загальним часом
     """
-    # Тут повинен бути ваш код
+    
+    max_items, max_volume = constraints["max_items"], constraints["max_volume"]
+    print_jobs = sorted(print_jobs, key=lambda job: -job["priority"], reverse=True)
+    print_order = []
+    total_time = 0
+    used = set()
+
+    i = 0
+    while i < len(print_jobs):
+        batch = []
+        batch_volume = 0
+        batch_time = 0
+
+        for j in range(i, len(print_jobs)):
+            job = print_jobs[j]
+            if job["id"] not in used and batch_volume + job["volume"] <= max_volume:
+                batch.append(job["id"])
+                batch_volume += job["volume"]
+                batch_time = max(batch_time, job["print_time"])
+                used.add(job["id"])
+
+                if len(batch) >= max_items:
+                    break
+        
+        if batch:
+            print_order.extend(batch)
+            total_time += batch_time
+        
+        i += 1
+
 
     return {
-        "print_order": None,
-        "total_time": None
+        "print_order": print_order,
+        "total_time": total_time
     }
 
 # Тестування
